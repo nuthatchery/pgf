@@ -3,7 +3,7 @@ module org::nuthatchery::pgf::rascal::AstToStream
 import ParseTree;
 import org::nuthatchery::pgf::rascal::Token;
 import org::nuthatchery::pgf::rascal::Tseq;
-import org::magnolialang::terms::Terms;
+import org::nuthatchery::pica::terms::Terms;
 data AST;
 
 alias PpFun = Tseq(AST, Tseq);

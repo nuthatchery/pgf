@@ -6,7 +6,7 @@ import org::nuthatchery::pgf::rascal::engines::FmtEngine;
 import org::nuthatchery::pgf::rascal::engines::Spacer;
 import org::nuthatchery::pgf::rascal::AstToStream;
 import org::magnolialang::magnolia::AbstractSyntax;
-import org::magnolialang::terms::Terms;
+import org::nuthatchery::pica::terms::Terms;
 import org::magnolialang::magnolia::AbstractSyntax;
 import org::magnolialang::magnolia::lib::Names;
 import org::magnolialang::magnolia::lib::MagnoliaCompileLib;

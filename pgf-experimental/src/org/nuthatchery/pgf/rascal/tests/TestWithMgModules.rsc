@@ -9,7 +9,7 @@ import org::nuthatchery::pgf::rascal::Tseq;
 
 import org::magnolialang::magnolia::lib::Names;
 import org::magnolialang::magnolia::MagnoliaFacts;
-import org::magnolialang::terms::Terms;
+import org::nuthatchery::pica::terms::Terms;
 
 import org::magnolialang::magnolia::resources::Resources;
 
