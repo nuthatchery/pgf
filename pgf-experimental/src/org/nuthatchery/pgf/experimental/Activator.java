@@ -13,12 +13,14 @@ public class Activator extends AbstractUIPlugin {
 
 	// The shared instance
 	private static Activator plugin;
-	
+
+
 	/**
 	 * The constructor
 	 */
 	public Activator() {
 	}
+
 
 	/*
 	 * (non-Javadoc)
@@ -30,6 +32,7 @@ public class Activator extends AbstractUIPlugin {
 		plugin = this;
 	}
 
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
@@ -40,9 +43,10 @@ public class Activator extends AbstractUIPlugin {
 		super.stop(context);
 	}
 
+
 	/**
 	 * Returns the shared instance
-	 *
+	 * 
 	 * @return the shared instance
 	 */
 	public static Activator getDefault() {
