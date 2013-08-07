@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.nuthatchery.pgf.plumbing.ForwardPipe;
+import org.nuthatchery.pgf.plumbing.ForwardStream;
 import org.nuthatchery.pgf.plumbing.PipeConnector;
 import org.nuthatchery.pgf.util.HistoryArrayList;
 import org.nuthatchery.pgf.util.HistoryList;
@@ -12,7 +13,7 @@ public class BufferedConnector<T, U> implements PipeConnector<T, U> {
 	private final List<T> inputBuffer;
 	private final HistoryList<U> outputBuffer;
 	private boolean end = false;
-	private ForwardPipe<U, ?> output = null;
+	private ForwardStream<U> output = null;
 
 
 	public BufferedConnector(int minLookAhead, int minLookBehind) {
@@ -36,7 +37,7 @@ public class BufferedConnector<T, U> implements PipeConnector<T, U> {
 	}
 
 
-	public void connect(ForwardPipe<U, ?> output) {
+	public void connect(ForwardStream<U> output) {
 		this.output = output;
 	}
 

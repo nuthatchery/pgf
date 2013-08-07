@@ -3,11 +3,12 @@ package org.nuthatchery.pgf.plumbing.impl;
 import java.util.ConcurrentModificationException;
 
 import org.nuthatchery.pgf.plumbing.ForwardPipe;
+import org.nuthatchery.pgf.plumbing.ForwardStream;
 import org.nuthatchery.pgf.processors.Processor;
 
 public class BufferedSyncPipeComponent<T, U> implements ForwardPipe<T, U> {
 
-	ForwardPipe<U, ?> next = null;
+	ForwardStream<U> next = null;
 	private boolean working = false;
 	private final BufferedConnector<T, U> conn;
 	final Processor<T, U> proc;
@@ -20,7 +21,14 @@ public class BufferedSyncPipeComponent<T, U> implements ForwardPipe<T, U> {
 
 
 	@Override
-	public synchronized void connect(ForwardPipe<U, ?> next) {
+	public <R> ForwardPipe<U, R> connect(ForwardPipe<U, R> next) {
+		connect((ForwardStream<U>) next);
+		return next;
+	}
+
+
+	@Override
+	public synchronized void connect(ForwardStream<U> next) {
 		if(proc.cfgIsSink()) {
 			throw new IllegalArgumentException("Trying to connect to sink");
 		}
@@ -54,7 +62,7 @@ public class BufferedSyncPipeComponent<T, U> implements ForwardPipe<T, U> {
 
 
 	@Override
-	public synchronized ForwardPipe<U, ?> getNextPipe() {
+	public synchronized ForwardStream<U> getNextPipe() {
 		return next;
 	}
 
