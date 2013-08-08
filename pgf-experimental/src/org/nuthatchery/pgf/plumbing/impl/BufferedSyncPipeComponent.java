@@ -5,6 +5,7 @@ import java.util.ConcurrentModificationException;
 import org.nuthatchery.pgf.plumbing.ForwardPipe;
 import org.nuthatchery.pgf.plumbing.ForwardStream;
 import org.nuthatchery.pgf.processors.Processor;
+import org.nuthatchery.pgf.tokens.Token;
 
 public class BufferedSyncPipeComponent<T, U> implements ForwardPipe<T, U> {
 
@@ -14,7 +15,7 @@ public class BufferedSyncPipeComponent<T, U> implements ForwardPipe<T, U> {
 	final Processor<T, U> proc;
 
 
-	protected BufferedSyncPipeComponent(Processor<T, U> proc) {
+	public BufferedSyncPipeComponent(Processor<T, U> proc) {
 		this.proc = proc;
 		conn = new BufferedConnector<T, U>(proc.cfgMinLookAhead(), proc.cfgMinLookBehind());
 	}

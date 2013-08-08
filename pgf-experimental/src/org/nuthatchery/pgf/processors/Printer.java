@@ -34,6 +34,7 @@ public class Printer<T> extends ProcessorBase<T, T> {
 				first = false;
 			}
 			pw.print(obj.toString());
+			pw.flush();
 			io.put(obj);
 		}
 		if(io.isAtEnd()) {

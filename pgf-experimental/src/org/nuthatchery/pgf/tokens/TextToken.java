@@ -20,7 +20,17 @@ public class TextToken implements Token {
 
 	@Override
 	public String toString() {
-		return data;
+		StringBuilder buf = new StringBuilder(data.length() * 2);
+		buf.append("\"");
+		buf.append(data.replace("\\", "\\\\").replace("\n", "\\n").replace("\"", "\\"));
+		buf.append("\"");
+
+		if(cat != null) {
+			buf.append(":");
+			buf.append(cat.getName());
+		}
+
+		return buf.toString();
 	}
 
 

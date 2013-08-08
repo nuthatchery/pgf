@@ -11,4 +11,9 @@ Require-Bundle: org.eclipse.ui,
  org.junit
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.nuthatchery.pgf.experimental
+Export-Package: org.nuthatchery.pgf.experimental,
+ org.nuthatchery.pgf.plumbing,
+ org.nuthatchery.pgf.plumbing.impl,
+ org.nuthatchery.pgf.processors,
+ org.nuthatchery.pgf.rascal.uptr,
+ org.nuthatchery.pgf.tokens
