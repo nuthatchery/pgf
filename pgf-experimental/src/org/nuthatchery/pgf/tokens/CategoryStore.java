@@ -100,6 +100,21 @@ public class CategoryStore {
 
 
 		@Override
+		public boolean isSubCatOf(Category category) {
+			if(this == category) {
+				return true;
+			}
+
+			for(Category sup : supers()) {
+				if(sup.isSubCatOf(category)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+
+		@Override
 		public Iterable<Category> supers() {
 			return store.supersOf(this);
 		}

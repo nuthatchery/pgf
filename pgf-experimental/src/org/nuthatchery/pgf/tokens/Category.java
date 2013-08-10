@@ -8,6 +8,9 @@ public interface Category {
 	CategoryStore getStore();
 
 
+	boolean isSubCatOf(Category category);
+
+
 	Iterable<Category> supers();
 
 }

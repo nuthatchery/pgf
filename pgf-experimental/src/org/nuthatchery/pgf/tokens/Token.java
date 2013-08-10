@@ -5,6 +5,9 @@ public interface Token {
 	Category getCategory();
 
 
+	boolean hasSubCatOf(Category category);
+
+
 	@Override
 	String toString();
 

@@ -1,6 +1,5 @@
 package org.nuthatchery.pgf.rascal.uptr;
 
-import java.util.Map;
 import java.util.Set;
 
 import org.nuthatchery.pgf.tokens.Category;

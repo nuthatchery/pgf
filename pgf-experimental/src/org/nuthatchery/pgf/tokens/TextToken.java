@@ -19,6 +19,12 @@ public class TextToken implements Token {
 
 
 	@Override
+	public boolean hasSubCatOf(Category category) {
+		return cat.isSubCatOf(category);
+	}
+
+
+	@Override
 	public String toString() {
 		StringBuilder buf = new StringBuilder(data.length() * 2);
 		buf.append("\"");
