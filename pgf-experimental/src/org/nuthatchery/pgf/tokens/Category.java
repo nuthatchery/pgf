@@ -2,6 +2,9 @@ package org.nuthatchery.pgf.tokens;
 
 public interface Category {
 
+	int getId();
+
+
 	String getName();
 
 
@@ -9,8 +12,5 @@ public interface Category {
 
 
 	boolean isSubCatOf(Category category);
-
-
-	Iterable<Category> supers();
 
 }

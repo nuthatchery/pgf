@@ -1,5 +1,8 @@
 package org.nuthatchery.pgf.rascal.uptr;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,6 +49,22 @@ public abstract class TokenizerConfigBase implements TokenizerConfig {
 			for(String kw : cfgKeywords()) {
 				litStringMap.put(kw, store.declare(kw, cat_kw.getName()));
 			}
+		}
+
+		store.compile();
+		try {
+			PrintWriter stream = new PrintWriter(new FileOutputStream("/tmp/cats.html"));
+			stream.print(store.toHTML());
+			stream.close();
+
+		}
+		catch(FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		System.err.println("Subcats of LGRP: ");
+		for(Category c : store.subCategoriesOf(store.category("LGRP"))) {
+			System.err.println("  " + c + " dist " + store.superDist(store.category("LGRP"), c));
 		}
 	}
 
@@ -131,28 +150,30 @@ public abstract class TokenizerConfigBase implements TokenizerConfig {
 
 
 	protected void addBasicCats() {
-		store.category("TOKEN");
-		cat_kw = cat_txt = store.category("TXT");
-		cat_comment = cat_hspc = cat_vspc = store.category("SPC");
-		cat_ctrl = store.category("CTRL");
+		store.declare("TOKEN");
+		cat_kw = cat_txt = store.declare("TXT");
+		cat_comment = cat_hspc = cat_vspc = store.declare("SPC");
+		cat_ctrl = store.declare("CTRL");
 
-		store.declareSuper("TXT", "TOKEN");
-		store.declareSuper("SPC", "TOKEN");
-		store.declareSuper("CTRL", "TOKEN");
+		store.declare("TXT", "TOKEN");
+		store.declare("SPC", "TOKEN");
+		store.declare("CTRL", "TOKEN");
 
+		store.declare("START", "CTRL");
+		store.declare("END", "CTRL");
 	}
 
 
 	protected void addDefaultCats() {
 		addBasicCats();
 
-/*			category KEYWORD, PUNCT, ID, LITERAL, PREOP, BINOP, GROUPING <: TXT;
+/*			category KEYWORD, PUNCT, ID, LITERAL, PREOP, BINOP, GRP <: TXT;
 			category IF, ELSE <: KEYWORD;
-			category PAREN, BRACE <: GROUPING;
-			category LPAREN, RPAREN <: PAREN;
-			category LBRACE, RBRACE <: BRACE;
-			category LPAREN, LBRACE <: LGROUPING;
-			category RPAREN, RBRACE <: RGROUPING;
+			category PAR, BRC <: GRP;
+			category LPAR, RPAR <: PAR;
+			category LBRC, RBRC <: BRC;
+			category LPAR, LBRC <: LGRP;
+			category RPAR, RBRC <: RGRP;
 			category COMMA, SEMICOLON <: PUNCT;
 			*/
 		cat_hspc = store.declare("WS", "SPC");
@@ -166,35 +187,38 @@ public abstract class TokenizerConfigBase implements TokenizerConfig {
 		store.declare("BINOP", "OP");
 		store.declare("POSTOP", "OP");
 
-		store.declare("GROUPING", "LITERAL");
-		store.declare("PAREN", "GROUPING");
-		store.declare("BRACE", "GROUPING");
-		store.declare("BRACKET", "GROUPING");
-		store.declare("LPAREN", "PAREN", "LGROUPING");
-		store.declare("RPAREN", "PAREN", "RGROUPING");
-		store.declare("LBRACE", "BRACE", "LGROUPING");
-		store.declare("RBRACE", "BRACE", "RGROUPING");
-		store.declare("LBRACKET", "BRACKET", "LGROUPING");
-		store.declare("RBRACKET", "BRACKET", "RGROUPING");
+		store.declare("GRP", "LITERAL");
+		store.declare("PAR", "GRP");
+		store.declare("BRC", "GRP");
+		store.declare("BRT", "GRP");
+		store.declare("LGRP", "GRP");
+		store.declare("RGRP", "GRP");
+		store.declare("LPAR", "PAR", "LGRP");
+		store.declare("RPAR", "PAR", "RGRP");
+		store.declare("LBRC", "BRC", "LGRP");
+		store.declare("RBRC", "BRC", "RGRP");
+		store.declare("LBRT", "BRT", "LGRP");
+		store.declare("RBRT", "BRT", "RGRP");
 
 		store.declare("PUNCT", "LITERAL");
 		store.declare("COMMA", "PUNCT");
-		store.declare("SEMICOLON", "PUNCT");
+		store.declare("SEMI", "PUNCT");
 		store.declare("COLON", "PUNCT");
+		store.declare("DOT", "PUNCT");
 
 	}
 
 
 	protected void addDefaultLiterals() {
-		addLitString("(", "LPAREN");
-		addLitString(")", "RPAREN");
-		addLitString("[", "LBRACKET");
-		addLitString("]", "RBRACKET");
-		addLitString("{", "LBRACE");
-		addLitString("}", "RBRACE");
+		addLitString("(", "LPAR");
+		addLitString(")", "RPAR");
+		addLitString("[", "LBRT");
+		addLitString("]", "RBRT");
+		addLitString("{", "LBRC");
+		addLitString("}", "RBRC");
 		addLitString(",", "COMMA");
 		addLitString(".", "DOT");
-		addLitString(";", "SEMICOLON");
+		addLitString(";", "SEMI");
 		addLitString(":", "COLON");
 		String regex = cfgKeywordRegex();
 		if(regex == null) {
@@ -247,8 +271,8 @@ public abstract class TokenizerConfigBase implements TokenizerConfig {
 	/**
 	 * If true, will classify:
 	 * 
-	 * "(":LPAREN, ")":RPAREN, "[":LBRACKET, "]":RBRACKET, "{":LBRACE,
-	 * "}":RBRACE as individual subcategories of GROUPING
+	 * "(":LPAR, ")":RPAR, "[":LBRT, "]":RBRT, "{":LBRC,
+	 * "}":RBRC as individual subcategories of GRP
 	 * 
 	 * ",":COMMA, ".":DOT, ";":SEMICOLON, ":":COLON as individual subcategories
 	 * of PUNCT
@@ -272,7 +296,7 @@ public abstract class TokenizerConfigBase implements TokenizerConfig {
 		/**
 		 * Predeclare all basic categories, as well as LITERAL, PUNCT, KEYWORD,
 		 * OP,
-		 * GROUPING and categories for individual parens/grouping, punctations
+		 * GRP and categories for individual parens/grouping, punctations
 		 * and
 		 * PREOP/BINOP/POSTOP.
 		 */

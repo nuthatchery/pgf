@@ -55,6 +55,10 @@ public class BufferedSyncPipeComponent<T, U> implements ForwardPipe<T, U> {
 					break;
 				}
 			}
+
+			if(next != null) {
+				next.end();
+			}
 		}
 		finally {
 			working = false;

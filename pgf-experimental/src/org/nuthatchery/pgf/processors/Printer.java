@@ -24,9 +24,20 @@ public class Printer<T> extends ProcessorBase<T, T> {
 
 
 	@Override
+	public boolean cfgUseEndMarker() {
+		return true;
+	}
+
+
+	@Override
 	public boolean process(PipeConnector<T, T> io) {
 		if(!io.isAtEnd()) {
 			T obj = io.get();
+			if(obj == cfgEndMarker()) {
+				pw.println();
+				pw.flush();
+				return true;
+			}
 			if(!first) {
 				pw.print(sep);
 			}
@@ -34,10 +45,10 @@ public class Printer<T> extends ProcessorBase<T, T> {
 				first = false;
 			}
 			pw.print(obj.toString());
-			pw.flush();
 			io.put(obj);
 		}
 		if(io.isAtEnd()) {
+			pw.println();
 			pw.flush();
 		}
 		return true;

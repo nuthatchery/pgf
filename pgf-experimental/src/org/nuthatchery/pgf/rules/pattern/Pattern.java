@@ -1,10 +1,6 @@
 package org.nuthatchery.pgf.rules.pattern;
 
-import java.util.Arrays;
-
-import org.nuthatchery.pgf.plumbing.PipeConnector;
 import org.nuthatchery.pgf.tokens.Category;
-import org.nuthatchery.pgf.tokens.Token;
 
 public interface Pattern {
 	Pattern after(Category... tokens);
@@ -13,11 +9,14 @@ public interface Pattern {
 	Pattern at(Category... tokens);
 
 
-	int lookAhead();
+	Category[] getLookAhead();
 
 
-	int lookBehind();
+	Category[] getLookBehind();
 
 
-	boolean match(PipeConnector<Token, Token> conn);
+	int numLookAhead();
+
+
+	int numLookBehind();
 }
