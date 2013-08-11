@@ -132,7 +132,7 @@ public class UPTRTokenizer {
 
 
 		private void splitLines(String str, Category cat) {
-			String[] split = str.split("\n|\f");
+			String[] split = str.split("\n|\f", -1);
 			boolean first = true;
 			for(String s : split) {
 				if(!first) {
