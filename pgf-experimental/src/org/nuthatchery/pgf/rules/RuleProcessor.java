@@ -6,6 +6,7 @@ import org.nuthatchery.pgf.rules.actions.Action;
 import org.nuthatchery.pgf.rules.pattern.Pattern;
 import org.nuthatchery.pgf.tokens.Category;
 import org.nuthatchery.pgf.tokens.CategoryStore;
+import org.nuthatchery.pgf.tokens.CtrlToken;
 import org.nuthatchery.pgf.tokens.Token;
 
 public class RuleProcessor implements Processor<Token, Token> {
@@ -90,7 +91,23 @@ public class RuleProcessor implements Processor<Token, Token> {
 	@Override
 	public boolean process(PipeConnector<Token, Token> io) {
 		Token thisToken = io.lookAhead(0);
-		Category ahead = io.lookAhead(0).getCategory();
+		while(thisToken instanceof CtrlToken) {
+			io.get();
+			io.putNoHistory(thisToken);
+
+			if(thisToken.hasSubCatOf(store.category("BEGIN"))) {
+				nestBegin(thisToken.getCategory());
+			}
+			else if(thisToken.hasSubCatOf(store.category("END"))) {
+				nestEnd(thisToken.getCategory());
+			}
+
+			if(io.isEmpty()) {
+				return true;
+			}
+			thisToken = io.lookAhead(0);
+		}
+		Category ahead = thisToken.getCategory();
 		Category behind;
 		if(io.sizeBehind() > 0) {
 			behind = io.lookBehind(0).getCategory();
@@ -166,6 +183,30 @@ public class RuleProcessor implements Processor<Token, Token> {
 
 	protected Decision get(Category a, Category b) {
 		return table[a.getId() * store.numCats() + b.getId()];
+	}
+
+
+	/**
+	 * Called when a BEGIN control token is encountered.
+	 * 
+	 * Override this if you need to track nesting.
+	 * 
+	 * @param category
+	 *            The particular category of the token
+	 */
+	protected void nestBegin(Category category) {
+	}
+
+
+	/**
+	 * Called when an END control token is encountered.
+	 * 
+	 * Override this if you need to track nesting.
+	 * 
+	 * @param category
+	 *            The particular category of the token
+	 */
+	protected void nestEnd(Category category) {
 	}
 
 

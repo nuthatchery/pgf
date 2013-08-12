@@ -10,7 +10,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.nuthatchery.pgf.plumbing.ForwardStream;
 import org.nuthatchery.pgf.tokens.Category;
 import org.nuthatchery.pgf.tokens.CategoryStore;
-import org.nuthatchery.pgf.tokens.TextToken;
+import org.nuthatchery.pgf.tokens.CtrlToken;
+import org.nuthatchery.pgf.tokens.DataToken;
 import org.nuthatchery.pgf.tokens.Token;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -60,27 +61,33 @@ public class UPTRTokenizer {
 			IConstructor prod = TreeAdapter.getProduction(arg);
 			IConstructor sym = ProductionAdapter.getType(prod);
 			String sort = ProductionAdapter.getSortName(prod);
+			if(SymbolAdapter.isAnyList(sym)) {
+				IConstructor listSym = SymbolAdapter.getSymbol(sym);
+				if(SymbolAdapter.isSort(listSym) || SymbolAdapter.isLex(listSym) || SymbolAdapter.isLayouts(listSym) || SymbolAdapter.isParameterizedSort(listSym) || SymbolAdapter.isKeyword(listSym)) {
+					sort = SymbolAdapter.getName(listSym) + "*";
+				}
+			}
 			ISourceLocation loc = TreeAdapter.getLocation(arg);
 
 			sym = SymbolAdapter.delabel(sym);
 
 			if(SymbolAdapter.isKeyword(sym)) {
-				output.put(new TextToken(TreeAdapter.yield(arg), TXT));
+				output.put(new DataToken(TreeAdapter.yield(arg), TXT));
 				return null;
 			}
 			else if(SymbolAdapter.isLiteral(sym) || SymbolAdapter.isCILiteral(sym)) {
 				String s = TreeAdapter.yield(arg);
-				output.put(new TextToken(s, config.getCatForLiteral(s)));
+				output.put(new DataToken(s, config.getCatForLiteral(s)));
 				return null;
 			}
 			else if(SymbolAdapter.isLex(sym)) {
 				String s = TreeAdapter.yield(arg);
-				output.put(new TextToken(s, config.getCatForLexical(s)));
+				output.put(new DataToken(s, config.getCatForLexical(s)));
 				return null;
 			}
 			else if(TreeAdapter.isComment(arg)) {
 				String s = TreeAdapter.yield(arg);
-				output.put(new TextToken(s, TXT));
+				output.put(new DataToken(s, TXT));
 				return null;
 			}
 			else if(SymbolAdapter.isLayouts(sym)) {
@@ -88,17 +95,26 @@ public class UPTRTokenizer {
 				return null;
 			}
 
+			boolean nest = config.cfgNestSorts().contains(sort);
+			if(nest) {
+				output.put(new CtrlToken(config.cfgCatForCtrlBegin()));
+			}
+
 			IList children = (IList) arg.get("args");
 			for(IValue child : children) {
 				child.accept(this);
 			}
+			if(nest) {
+				output.put(new CtrlToken(config.cfgCatForCtrlEnd()));
+			}
+
 			return null;
 		}
 
 
 		@Override
 		public IConstructor visitTreeChar(IConstructor arg) throws RuntimeException {
-			output.put(new TextToken(TreeAdapter.yield(arg), null));
+			output.put(new DataToken(TreeAdapter.yield(arg), null));
 			return null;
 		}
 
@@ -136,10 +152,10 @@ public class UPTRTokenizer {
 			boolean first = true;
 			for(String s : split) {
 				if(!first) {
-					output.put(new TextToken("\n", config.cfgCatVertSpace()));
+					output.put(new DataToken("\n", config.cfgCatVertSpace()));
 				}
 				if(!s.equals("")) {
-					output.put(new TextToken(s, cat));
+					output.put(new DataToken(s, cat));
 				}
 				first = false;
 			}

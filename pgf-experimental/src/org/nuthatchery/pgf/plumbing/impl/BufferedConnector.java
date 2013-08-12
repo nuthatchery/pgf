@@ -3,7 +3,6 @@ package org.nuthatchery.pgf.plumbing.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nuthatchery.pgf.plumbing.ForwardPipe;
 import org.nuthatchery.pgf.plumbing.ForwardStream;
 import org.nuthatchery.pgf.plumbing.PipeConnector;
 import org.nuthatchery.pgf.util.HistoryArrayList;
@@ -90,6 +89,14 @@ public class BufferedConnector<T, U> implements PipeConnector<T, U> {
 		}
 		if(outputBuffer != null) {
 			outputBuffer.put(obj);
+		}
+	}
+
+
+	@Override
+	public void putNoHistory(U obj) {
+		if(output != null) {
+			output.put(obj);
 		}
 	}
 

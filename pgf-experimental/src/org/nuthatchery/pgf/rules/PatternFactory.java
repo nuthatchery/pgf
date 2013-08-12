@@ -6,7 +6,7 @@ import org.nuthatchery.pgf.plumbing.PipeConnector;
 import org.nuthatchery.pgf.rules.actions.Action;
 import org.nuthatchery.pgf.rules.pattern.Pattern;
 import org.nuthatchery.pgf.tokens.Category;
-import org.nuthatchery.pgf.tokens.TextToken;
+import org.nuthatchery.pgf.tokens.DataToken;
 import org.nuthatchery.pgf.tokens.Token;
 
 public class PatternFactory {
@@ -31,7 +31,7 @@ public class PatternFactory {
 
 
 	public static final Action insert(String data, Category cat) {
-		return new InsertAction(new TextToken(data, cat));
+		return new InsertAction(new DataToken(data, cat));
 	}
 
 

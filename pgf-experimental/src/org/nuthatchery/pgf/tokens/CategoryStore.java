@@ -263,6 +263,28 @@ public class CategoryStore {
 	}
 
 
+	public String toJava(String storeName, boolean makeDecls, boolean makeStatic) {
+		StringBuilder buf = new StringBuilder();
+
+		for(Category c : catsByInt) {
+			if(makeDecls) {
+				if(makeStatic) {
+					buf.append("public static ");
+				}
+
+				buf.append("final Category ");
+			}
+			buf.append(c.getName());
+			buf.append(" = ");
+			buf.append(storeName);
+			buf.append(".category(\"");
+			buf.append(c.getName());
+			buf.append("\");\n");
+		}
+		return buf.toString();
+	}
+
+
 	private void declareSuper(Category subCat, Category superCat) {
 		if(subCat.getStore() != this || superCat.getStore() != this) {
 			throw new IllegalArgumentException("Category does not belong to this store");

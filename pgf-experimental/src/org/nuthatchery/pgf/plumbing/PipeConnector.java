@@ -78,6 +78,15 @@ public interface PipeConnector<T, U> {
 
 
 	/**
+	 * Output a token, bypassing history
+	 * 
+	 * @param obj
+	 *            The token
+	 */
+	void putNoHistory(U obj);
+
+
+	/**
 	 * Inspect the input buffer.
 	 * 
 	 * @return Current size of input buffer

@@ -3,9 +3,11 @@ package org.nuthatchery.pgf.rascal.uptr;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -15,6 +17,8 @@ import org.nuthatchery.pgf.tokens.Category;
 import org.nuthatchery.pgf.tokens.CategoryStore;
 
 public abstract class TokenizerConfigBase implements TokenizerConfig {
+	public static final String DEFAULT_ID_REGEX = "^[_a-zA-Z][_a-zA-Z0-9]*$";
+	public static final String DEFAULT_KW_REGEX = "^[a-z]+$";
 	private final CategoryStore store = new CategoryStore();
 	private final Map<String, Category> litStringMap = new HashMap<String, Category>();
 	private final Map<Pattern, Category> litRegexMap = new HashMap<Pattern, Category>();
@@ -27,6 +31,8 @@ public abstract class TokenizerConfigBase implements TokenizerConfig {
 	private Category cat_ctrl;
 	private Category cat_comment;
 	private Category cat_kw;
+	private Category cat_end;
+	private Category cat_begin;
 
 
 	public TokenizerConfigBase() {
@@ -41,6 +47,9 @@ public abstract class TokenizerConfigBase implements TokenizerConfig {
 			break;
 		}
 
+		//store.compile();
+		//System.out.println(store.toJava("store", true, false));
+
 		if(cfgUseDefaultLiteralClassification()) {
 			addDefaultLiterals();
 		}
@@ -50,6 +59,8 @@ public abstract class TokenizerConfigBase implements TokenizerConfig {
 				litStringMap.put(kw, store.declare(kw, cat_kw.getName()));
 			}
 		}
+
+		moreCategories(store);
 
 		store.compile();
 		try {
@@ -76,8 +87,26 @@ public abstract class TokenizerConfigBase implements TokenizerConfig {
 
 
 	@Override
+	public Category cfgCatCtrl() {
+		return cat_ctrl;
+	}
+
+
+	@Override
 	public CategoryStore cfgCategories() {
 		return store;
+	}
+
+
+	@Override
+	public Category cfgCatForCtrlBegin() {
+		return cat_begin;
+	}
+
+
+	@Override
+	public Category cfgCatForCtrlEnd() {
+		return cat_end;
 	}
 
 
@@ -129,6 +158,7 @@ public abstract class TokenizerConfigBase implements TokenizerConfig {
 				return entry.getValue();
 			}
 		}
+
 		return cat_txt;
 	}
 
@@ -160,7 +190,10 @@ public abstract class TokenizerConfigBase implements TokenizerConfig {
 		store.declare("CTRL", "TOKEN");
 
 		store.declare("START", "CTRL");
-		store.declare("END", "CTRL");
+		store.declare("STOP", "CTRL");
+
+		cat_begin = store.declare("BEGIN", "CTRL");
+		cat_end = store.declare("END", "CTRL");
 	}
 
 
@@ -181,6 +214,7 @@ public abstract class TokenizerConfigBase implements TokenizerConfig {
 		cat_comment = store.declare("COM", "SPC");
 
 		store.declare("LITERAL", "TXT");
+		store.declare("ID", "TXT");
 		cat_kw = store.declare("KEYWORD", "LITERAL");
 		store.declare("OP", "LITERAL");
 		store.declare("PREOP", "OP");
@@ -221,22 +255,25 @@ public abstract class TokenizerConfigBase implements TokenizerConfig {
 		addLitString(";", "SEMI");
 		addLitString(":", "COLON");
 		String regex = cfgKeywordRegex();
-		if(regex == null) {
-			regex = "^[a-z]+$";
+		if(regex != null) {
+			addLitRegex(regex, "KEYWORD");
 		}
-		addLitRegex(regex, "KEYWORD");
+		regex = cfgIdentifierRegex();
+		if(regex != null) {
+			addLexRegex(regex, "ID");
+		}
 	}
 
 
 	protected void addLexRegex(String regex, String category) {
 		Category cat = store.category(category);
-		litRegexMap.put(Pattern.compile(regex), cat);
+		lexRegexMap.put(Pattern.compile(regex), cat);
 	}
 
 
 	protected void addLexString(String literal, String category) {
 		Category cat = store.category(category);
-		litStringMap.put(literal, cat);
+		lexStringMap.put(literal, cat);
 	}
 
 
@@ -252,11 +289,22 @@ public abstract class TokenizerConfigBase implements TokenizerConfig {
 	}
 
 
+	/**
+	 * @return Regular expression for identifiers, or null for no automatic
+	 *         classification of identifiers
+	 * @see {@link #DEFAULT_ID_REGEX}
+	 */
+	protected abstract String cfgIdentifierRegex();
+
+
 	protected abstract CatSet cfgInitialCategorySet();
 
 
 	/**
-	 * @return Regular expression for keywords, or null for default ("^[a-z]+$")
+	 * @return Regular expression for keywords, or null for no automatic
+	 *         classification of keywords
+	 * 
+	 * @see {@link #DEFAULT_KW_REGEX}
 	 */
 	protected abstract String cfgKeywordRegex();
 
@@ -284,6 +332,9 @@ public abstract class TokenizerConfigBase implements TokenizerConfig {
 	protected abstract boolean cfgUseDefaultLiteralClassification();
 
 
+	protected abstract void moreCategories(CategoryStore store);
+
+
 	public enum CatSet {
 		/**
 		 * Predeclare *no* categories
@@ -302,4 +353,5 @@ public abstract class TokenizerConfigBase implements TokenizerConfig {
 		 */
 		CATSET_DEFAULT;
 	}
+
 }

@@ -13,7 +13,16 @@ public interface TokenizerConfig {
 	Category cfgCatComment();
 
 
+	Category cfgCatCtrl();
+
+
 	CategoryStore cfgCategories();
+
+
+	Category cfgCatForCtrlBegin();
+
+
+	Category cfgCatForCtrlEnd();
 
 
 	/**

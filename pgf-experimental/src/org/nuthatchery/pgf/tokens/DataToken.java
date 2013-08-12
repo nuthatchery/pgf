@@ -1,11 +1,11 @@
 package org.nuthatchery.pgf.tokens;
 
-public class TextToken implements Token {
+public class DataToken implements Token {
 	String data;
 	Category cat;
 
 
-	public TextToken(String data, Category cat) {
+	public DataToken(String data, Category cat) {
 		super();
 		this.data = data;
 		this.cat = cat;
