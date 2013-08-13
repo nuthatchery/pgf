@@ -17,4 +17,5 @@ Export-Package: org.nuthatchery.pgf.examples,
  org.nuthatchery.pgf.plumbing.impl,
  org.nuthatchery.pgf.processors,
  org.nuthatchery.pgf.rascal.uptr,
+ org.nuthatchery.pgf.rules,
  org.nuthatchery.pgf.tokens

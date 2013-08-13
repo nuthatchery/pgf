@@ -13,6 +13,7 @@ import org.nuthatchery.pgf.tokens.CategoryStore;
 import org.nuthatchery.pgf.tokens.CtrlToken;
 import org.nuthatchery.pgf.tokens.DataToken;
 import org.nuthatchery.pgf.tokens.Token;
+import org.nuthatchery.pgf.tokens.TokenizerHelper;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -45,7 +46,6 @@ public class UPTRTokenizer {
 
 	class Visitor extends TreeVisitor<RuntimeException> {
 		ForwardStream<Token> output;
-		Pattern patLayout = Pattern.compile("^(\\s*)(.*\\S)(\\s*)$", Pattern.DOTALL);
 
 
 		@Override
@@ -91,7 +91,7 @@ public class UPTRTokenizer {
 				return null;
 			}
 			else if(SymbolAdapter.isLayouts(sym)) {
-				splitComment(TreeAdapter.yield(arg));
+				TokenizerHelper.splitComment(TreeAdapter.yield(arg), output, config);
 				return null;
 			}
 
@@ -124,41 +124,5 @@ public class UPTRTokenizer {
 			return null;
 		}
 
-
-		private void splitComment(String s) {
-			Matcher matcher = patLayout.matcher(s);
-			if(matcher.matches()) {
-				String t = matcher.group(1);
-				if(!t.equals("")) {
-					splitLines(t, config.cfgCatHorizSpace());
-				}
-				t = matcher.group(2);
-				if(!t.equals("")) {
-					splitLines(t, config.cfgCatComment());
-				}
-				t = matcher.group(3);
-				if(!t.equals("")) {
-					splitLines(t, config.cfgCatHorizSpace());
-				}
-			}
-			else if(!s.equals("")) {
-				splitLines(s, config.cfgCatHorizSpace());
-			}
-		}
-
-
-		private void splitLines(String str, Category cat) {
-			String[] split = str.split("\n|\f", -1);
-			boolean first = true;
-			for(String s : split) {
-				if(!first) {
-					output.put(new DataToken("\n", config.cfgCatVertSpace()));
-				}
-				if(!s.equals("")) {
-					output.put(new DataToken(s, cat));
-				}
-				first = false;
-			}
-		}
 	}
 }

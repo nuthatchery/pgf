@@ -47,6 +47,13 @@ public class SensibleSpacing extends RuleProcessor {
 		final Category DOT = store.category("DOT");
 		Action space = insert(" ", WS);
 
+		// spaces
+		addRule(after(START).at(WS), nop);
+		addRule(after(NL).at(WS), nop);
+		addRule(at(WS), delete);
+
+		addPriorityLevel();
+
 		addRule(after(PREOP).at(TXT), nop);
 		addRule(after(PREOP).at(OP), space);
 		addRule(after(TXT).at(BINOP), space);
@@ -55,14 +62,6 @@ public class SensibleSpacing extends RuleProcessor {
 		addRule(after(TXT).at(POSTOP), nop);
 
 		addPriorityLevel();
-
-		// spaces
-		addRule(after(START).at(WS), nop);
-		addRule(after(NL).at(WS), nop);
-		addRule(at(WS), delete);
-
-		// general rule
-		addRule(after(TXT).at(TXT), space);
 
 		addRule(after(COMMA).at(TXT), space);
 		addRule(after(PUNCT), nop);
@@ -85,6 +84,11 @@ public class SensibleSpacing extends RuleProcessor {
 		addRule(after(ID).at(LBRC), nop);
 
 		addRule(after(SEMI).at(TXT), space);
+
+		addPriorityLevel();
+
+		// general rule
+		addRule(after(TXT).at(TXT), space);
 
 	}
 }
