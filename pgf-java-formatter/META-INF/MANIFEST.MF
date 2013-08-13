@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PGF/JavaFormatter
+Bundle-SymbolicName: pgf-java-formatter
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: 
+ org.junit,
+ pgf-experimental;bundle-version="1.0.0",
+ nuthatch_javafront;bundle-version="0.99.0",
+ nuthatch_stratego;bundle-version="0.99.0",
+ nuthatch;bundle-version="0.99.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: org.nuthatchery.pgf.javaformatter
