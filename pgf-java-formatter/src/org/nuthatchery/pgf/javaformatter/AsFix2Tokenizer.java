@@ -4,6 +4,7 @@ import static nuthatch.library.JoinPoints.down;
 import static nuthatch.library.JoinPoints.up;
 import static nuthatch.pattern.StaticPatternFactory.or;
 import static nuthatch.stratego.pattern.SPatternFactory._;
+import static nuthatch.stratego.pattern.SPatternFactory.var;
 import static org.nuthatchery.pgf.javaformatter.AsFix2Patterns.appl;
 import static org.nuthatchery.pgf.javaformatter.AsFix2Patterns.cf;
 import static org.nuthatchery.pgf.javaformatter.AsFix2Patterns.iter;
@@ -17,15 +18,15 @@ import static org.nuthatchery.pgf.javaformatter.AsFix2Patterns.lit;
 import static org.nuthatchery.pgf.javaformatter.AsFix2Patterns.opt;
 import static org.nuthatchery.pgf.javaformatter.AsFix2Patterns.parametrized_sort;
 import static org.nuthatchery.pgf.javaformatter.AsFix2Patterns.sort;
-import nuthatch.library.Action;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import nuthatch.library.BaseWalk;
 import nuthatch.pattern.Environment;
 import nuthatch.pattern.EnvironmentFactory;
-import nuthatch.stratego.actions.SAction;
-import nuthatch.stratego.actions.SActionFactory;
-import nuthatch.stratego.actions.SMatchAction;
+import nuthatch.pattern.Pattern;
 import nuthatch.stratego.adapter.STermCursor;
-import nuthatch.stratego.adapter.STermVar;
 import nuthatch.stratego.adapter.SWalker;
 
 import org.nuthatchery.pgf.plumbing.ForwardStream;
@@ -35,8 +36,10 @@ import org.nuthatchery.pgf.tokens.CtrlToken;
 import org.nuthatchery.pgf.tokens.DataToken;
 import org.nuthatchery.pgf.tokens.Token;
 import org.nuthatchery.pgf.tokens.TokenizerHelper;
+import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoString;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class AsFix2Tokenizer {
 	protected final CategoryStore categories;
@@ -48,33 +51,36 @@ public class AsFix2Tokenizer {
 		this.categories = null; // config.cfgCategories();
 	}
 
+	public static Pattern<IStrategoTerm, Integer> applProdArgs = appl(var("prod"), var("args"));
+
 
 	public void tokenize(STermCursor parseTree, final ForwardStream<Token> output) {
+		final List<Integer> endStack = new ArrayList<Integer>();
 		BaseWalk<SWalker> toTerm = new BaseWalk<SWalker>() {
 			@Override
 			public int step(SWalker w) {
 				Environment<STermCursor> env = EnvironmentFactory.env();
-				STermVar prod = new STermVar(env);
-				STermVar args = new STermVar(env);
 
-				if(w.match(appl(prod, args), env)) {
-					String sort = getProdSort(prod.get());
-					if(down(w)) {
-						if(isLex(prod.get(), env)) {
-							String string = yield(args.get());
+				if(down(w)) {
+					if(w.match(applProdArgs, env)) {
+						STermCursor prod = env.get("prod");
+						STermCursor args = env.get("args");
+						String sort = getProdSort(prod);
+						if(isLex(prod, env)) {
+							String string = yield(args);
 							//System.err.print("\"" + string + "\":" + sort + " ");
 							output.put(new DataToken(string, config.getCatForLexical(string)));
 							return PARENT;
 						}
-						else if(isLit(prod.get(), env)) {
-							String string = yield(args.get());
+						else if(isLit(prod, env)) {
+							String string = yield(args);
 							//System.err.print("\"" + string + "\":" + sort + " ");
 							//System.out.print(string);
 							output.put(new DataToken(string, config.getCatForLiteral(string)));
 							return PARENT;
 						}
-						else if(isLayout(prod.get(), env)) {
-							String string = yield(args.get());
+						else if(isLayout(prod, env)) {
+							String string = yield(args);
 							//System.err.print("\"" + string + "\":" + sort + " ");
 							//System.out.print(string);
 							TokenizerHelper.splitComment(string, output, config);
@@ -83,12 +89,14 @@ public class AsFix2Tokenizer {
 
 						if(config.cfgNestSorts().contains(sort)) {
 							output.put(new CtrlToken(config.cfgCatForCtrlBegin()));
+							endStack.add(w.depth());
 						}
 
 						return 2;
 					}
 					else if(up(w)) {
-						if(config.cfgNestSorts().contains(sort)) {
+						if(!endStack.isEmpty() && endStack.get(endStack.size() - 1) == w.depth()) {
+							endStack.remove(endStack.size() - 1);
 							output.put(new CtrlToken(config.cfgCatForCtrlEnd()));
 						}
 					}
@@ -110,51 +118,63 @@ public class AsFix2Tokenizer {
 		return getSymSort(getProdType(tree));
 	}
 
+	public static final Pattern<IStrategoTerm, Integer> sortXOrParametrizedSortX = or(sort(var("x")), parametrized_sort(var("x"), _));
+	public static final Pattern<IStrategoTerm, Integer> cfXOrLexXOrOptX = or(cf(var("x")), lex(var("x")), opt(var("x")));
+	public static final Pattern<IStrategoTerm, Integer> iterated = or(iter(var("x")), iter_star(var("x")), iter_sep(var("x"), _), iter_star_sep(var("x"), _));
+
 
 	public static String getSymSort(STermCursor symbol) {
 		Environment<STermCursor> env = EnvironmentFactory.env();
-		STermVar x = new STermVar(env);
-		if(or(sort(x), parametrized_sort(x, _)).match(symbol, env) && x.get().getData() instanceof IStrategoString) {
-			return ((IStrategoString) x.get().getData()).stringValue();
+		if(sortXOrParametrizedSortX.match(symbol, env) && env.get("x").getData() instanceof IStrategoString) {
+			return ((IStrategoString) env.get("x").getData()).stringValue();
 		}
-		else if(or(cf(x), lex(x), opt(x)).match(symbol, env)) {
-			return getSymSort(x.get());
+		else if(cfXOrLexXOrOptX.match(symbol, env)) {
+			return getSymSort(env.get("x"));
 		}
-		else if(or(iter(x), iter_star(x), iter_sep(x, _), iter_star_sep(x, _)).match(symbol, env)) {
-			return getSymSort(x.get()) + "*";
+		else if(iterated.match(symbol, env)) {
+			return getSymSort(env.get("x")) + "*";
 		}
 		return "";
 	}
 
+	public static final Pattern<IStrategoTerm, Integer> lex = lex(_);
+	public static final Pattern<IStrategoTerm, Integer> listLex = list(lex(_));
+
 
 	public static boolean isLex(STermCursor tree, Environment<STermCursor> env) {
 		// System.out.println(tree.treeToString());
-		if(lex(_).match(getProdType(tree), env)) {
+		if(lex.match(getProdType(tree), env)) {
 			return true;
 		}
-		if(list(lex(_)).match(getProdDefined(tree), env)) {
+		if(listLex.match(getProdDefined(tree), env)) {
 			System.err.println("hmm");
 		}
 		return false;
 
 	}
 
+	public static final Pattern<IStrategoTerm, Integer> lit = lit(_);
+
 
 	public static boolean isLit(STermCursor tree, Environment<STermCursor> env) {
 		// System.out.println(tree.treeToString());
-		return lit(_).match(getProdType(tree), env);
+		return lit.match(getProdType(tree), env);
 	}
+
+	public static final Pattern<IStrategoTerm, Integer> cfLayout = cf(layout());
 
 
 	public static boolean isLayout(STermCursor tree, Environment<STermCursor> env) {
 		// System.out.println(tree.treeToString());
-		return cf(layout()).match(getProdType(tree), env);
+		return cfLayout.match(getProdType(tree), env);
 	}
+
+	public static final Pattern<IStrategoTerm, Integer> sortOrParametrizedSort = cf(or(sort(_), parametrized_sort(_, _)));
 
 
 	public static boolean isSort(STermCursor tree, Environment<STermCursor> env) {
 		// System.out.println(tree.treeToString());
-		return cf(or(sort(_), parametrized_sort(_, _))).match(getProdType(tree), env);
+		return sortOrParametrizedSort.match(getProdType(tree), env);
 	}
 
 
@@ -177,28 +197,54 @@ public class AsFix2Tokenizer {
 		}
 	}
 
+	public static Pattern<IStrategoTerm, Integer> appl = appl(_, _);
 
-	@SuppressWarnings("unchecked")
+
 	String yield(STermCursor tree) {
 		final StringBuilder s = new StringBuilder();
-		Action<SWalker> action = SActionFactory.combine(SActionFactory.atLeaf(new SAction() {
+		yield(tree.getData(), s);
+		/*
+		 * BaseWalk<SWalker> toString = new BaseWalk<SWalker>() {
 			@Override
-			public int step(SWalker walker) {
-				if(walker.getData() instanceof IStrategoInt) {
-					s.append(Character.toChars(((IStrategoInt) walker.getData()).intValue()));
+			public int step(SWalker w) {
+				if(down(w)) {
+					if(w.hasName("appl")) {
+						w.go(2);
+					}
+					else if(w.hasType(IStrategoTerm.INT)) {
+						s.append(Character.toChars(((IStrategoInt) w.getData()).intValue()));
+					}
+					else {
+						//System.out.println(w.treeToString());
+					}
 				}
 				return NEXT;
 			}
-		}), SActionFactory.down(SActionFactory.match(appl(_, _), new SMatchAction() {
-			@Override
-			public int step(SWalker walker, Environment<STermCursor> env) {
-				return 2;
-			}
-
-		})));
-
-		new SWalker(tree, SActionFactory.walk(action)).start();
-
+		};
+		new SWalker(tree, toString).start();
+		*/
+		// System.out.println(" => " + s);
 		return s.toString();
+	}
+
+
+	@SuppressWarnings("unchecked")
+	private void yield(IStrategoTerm data, StringBuilder s) {
+		while(data instanceof IStrategoAppl) {
+			data = data.getSubterm(1);
+		}
+
+		switch(data.getTermType()) {
+		case IStrategoTerm.INT:
+			s.append(Character.toChars(((IStrategoInt) data).intValue()));
+			break;
+		case IStrategoTerm.LIST:
+			for(IStrategoTerm t : (Iterable<IStrategoTerm>) data) {
+				yield(t, s);
+			}
+			break;
+		case IStrategoTerm.STRING:
+			s.append(((IStrategoString) data).stringValue());
+		}
 	}
 }

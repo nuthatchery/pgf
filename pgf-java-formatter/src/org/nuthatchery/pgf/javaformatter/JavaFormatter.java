@@ -1,7 +1,8 @@
 package org.nuthatchery.pgf.javaformatter;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,7 +16,7 @@ import nuthatch.stratego.adapter.STermCursor;
 import org.nuthatchery.pgf.examples.SensibleSpacing;
 import org.nuthatchery.pgf.plumbing.ForwardPipe;
 import org.nuthatchery.pgf.plumbing.impl.BufferedSyncPipeComponent;
-import org.nuthatchery.pgf.processors.Printer;
+import org.nuthatchery.pgf.processors.CopyProcessor;
 import org.nuthatchery.pgf.rascal.uptr.TokenizerConfigBase;
 import org.nuthatchery.pgf.tokens.CategoryStore;
 import org.nuthatchery.pgf.tokens.Token;
@@ -34,29 +35,67 @@ public class JavaFormatter {
 	 * @throws ParseError
 	 */
 	public static void main(String[] args) throws SGLRException, IOException, ParseError, InvalidParseTableException {
+		boolean profile = true;
+		long t = System.currentTimeMillis();
+		JavaParser.init();
+		STermCursor smallCursor = JavaParser.parseStreamToAsfix(JavaFormatter.class.getResourceAsStream("JavaFormatter.j"), "JavaFormatter.java");
+		System.out.println("Parsing done, in " + (System.currentTimeMillis() - t) + "ms");
+
+		t = System.currentTimeMillis();
+		JavaParser.init();
+		STermCursor bigCursor = null;
+		if(profile) {
+			bigCursor = JavaParser.parseStreamToAsfix(JavaFormatter.class.getResourceAsStream("RascalParser.java.ex"), "RascalParser.java.ex");
+		}
+		System.out.println("Parsing done, in " + (System.currentTimeMillis() - t) + "ms");
+		System.out.print("Press ENTER when ready...");
+		if(profile) {
+			System.in.read();
+		}
+
+		System.out.println("Starting the real stuff!");
+		System.out.println("");
+		System.out.println("");
+		format(smallCursor);
+		if(profile) {
+			format(bigCursor);
+		}
+
+	}
+
+
+	static void format(STermCursor input) throws FileNotFoundException {
 		// TODO Auto-generated method stub
 
-		JavaParser.init();
-		InputStream input = JavaFormatter.class.getResourceAsStream("JavaFormatter.j");
-		STermCursor cursor = JavaParser.parseStreamToAsfix(input, "JavaFormatter.java");
-
 		Config config = new Config();
+
 		AsFix2Tokenizer tokenizer = new AsFix2Tokenizer(config);
-		final ForwardPipe<Token, Token> output = new BufferedSyncPipeComponent<>(new Printer<Token>(new PrintWriter(System.out), " "));
+
+		final ForwardPipe<Token, Token> output = new BufferedSyncPipeComponent<>(new CopyProcessor<Token>()); //new Printer<Token>(new PrintWriter(System.out), " "));
 		ForwardPipe<Token, Token> next = output;
 
 		next = next.connect(new BufferedSyncPipeComponent<>(new SensibleSpacing(config.cfgCategories())));
 		//next = next.connect(new BufferedSyncPipeComponent<>(new Indenter(config.cfgCategories())));
 		TokensToString tokensToString = new TokensToString();
-		next = next.connect(new BufferedSyncPipeComponent<>(new Printer<Token>(new PrintWriter(System.err), " ")));
+		//next = next.connect(new BufferedSyncPipeComponent<>(new Printer<Token>(new PrintWriter(System.err), " ")));
 		next = next.connect(new BufferedSyncPipeComponent<>(tokensToString));
 
 		// output.connect(new BufferedSyncPipeComponent<>(respacer)).connect(new BufferedSyncPipeComponent<>(indenter)).connect(new BufferedSyncPipeComponent<>(new Printer<Token>(new PrintWriter(System.err), " "))).connect(new BufferedSyncPipeComponent<>(tokensToString));
-		tokenizer.tokenize(cursor, output);
+		long t = System.currentTimeMillis();
+		tokenizer.tokenize(input, output); // new NullPipe<Token>());
 		output.end();
-		System.out.println();
+		String result = tokensToString.toString();
+		System.out.println("Formatting done, in " + (System.currentTimeMillis() - t) + "ms");
 		System.out.println("RESULT: ");
-		System.out.println(tokensToString.toString());
+		if(result.length() > 4096) {
+			try (PrintWriter writer = new PrintWriter(new FileOutputStream("/tmp/result.java"))) {
+				writer.print(result);
+			}
+			System.out.println("...in /tmp/result.java");
+		}
+		else {
+			System.out.println(result);
+		}
 		System.out.println("***");
 	}
 
