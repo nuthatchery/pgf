@@ -26,6 +26,9 @@ public class JavaFormatter {
 		InputStream input=JavaFormatter.class.getResourceAsStream("JavaFormatter.java");
 		STermCursor cursor=JavaParser.parseStreamToAsfix(input, "JavaFormatter.java");
 		new AsfixTokenizer(   null ) . tokenize(cursor,null);
+
+		if (b) {x=3;}else{x=4;}
+		if( b) x = f ( 1,2,3);
 		
 	}
 

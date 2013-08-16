@@ -13,7 +13,6 @@ import java.util.Set;
 import nuthatch.javafront.JavaParser;
 import nuthatch.stratego.adapter.STermCursor;
 
-import org.nuthatchery.pgf.examples.SensibleSpacing;
 import org.nuthatchery.pgf.plumbing.ForwardPipe;
 import org.nuthatchery.pgf.plumbing.impl.BufferedSyncPipeComponent;
 import org.nuthatchery.pgf.processors.CopyProcessor;
@@ -35,7 +34,7 @@ public class JavaFormatter {
 	 * @throws ParseError
 	 */
 	public static void main(String[] args) throws SGLRException, IOException, ParseError, InvalidParseTableException {
-		boolean profile = true;
+		boolean profile = false;
 		long t = System.currentTimeMillis();
 		JavaParser.init();
 		STermCursor smallCursor = JavaParser.parseStreamToAsfix(JavaFormatter.class.getResourceAsStream("JavaFormatter.j"), "JavaFormatter.java");
@@ -74,7 +73,7 @@ public class JavaFormatter {
 		final ForwardPipe<Token, Token> output = new BufferedSyncPipeComponent<>(new CopyProcessor<Token>()); //new Printer<Token>(new PrintWriter(System.out), " "));
 		ForwardPipe<Token, Token> next = output;
 
-		next = next.connect(new BufferedSyncPipeComponent<>(new SensibleSpacing(config.cfgCategories())));
+		next = next.connect(new BufferedSyncPipeComponent<>(new JavaSpacing(config.cfgCategories())));
 		//next = next.connect(new BufferedSyncPipeComponent<>(new Indenter(config.cfgCategories())));
 		TokensToString tokensToString = new TokensToString();
 		//next = next.connect(new BufferedSyncPipeComponent<>(new Printer<Token>(new PrintWriter(System.err), " ")));
