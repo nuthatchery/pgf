@@ -58,10 +58,10 @@ public class Indenter extends RuleProcessor {
 		Action space = insert(" ", WS);
 		Action indent = new IndentAction();
 
-		addRule(after(NL).at(WS), delete);
+		addRule(after(NL).at(WS), drop);
 		addRule(after(NL).at(NL), nop);
 
-		addRule(after(NL).at(WS), seq(delete, indent));
+		addRule(after(NL).at(WS), seq(drop, indent));
 		addRule(after(NL), seq(indent, move));
 	}
 

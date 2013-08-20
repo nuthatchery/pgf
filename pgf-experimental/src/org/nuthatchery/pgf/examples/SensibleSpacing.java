@@ -50,7 +50,7 @@ public class SensibleSpacing extends RuleProcessor {
 		// spaces
 		addRule(after(START).at(WS), nop);
 		addRule(after(NL).at(WS), nop);
-		addRule(at(WS), delete);
+		addRule(at(WS), drop);
 
 		addPriorityLevel();
 

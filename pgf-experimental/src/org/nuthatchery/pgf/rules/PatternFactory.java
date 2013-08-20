@@ -14,7 +14,7 @@ public class PatternFactory {
 
 	public static final Action nop = new NopAction();
 
-	public static final Action delete = new DeleteAction();
+	public static final Action drop = new DeleteAction();
 
 
 	public static final Pattern after(Category... tokens) {

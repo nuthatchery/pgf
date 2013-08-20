@@ -17,7 +17,7 @@ public class Respacer extends RuleProcessor {
 		Category TOKEN = store.category("TOKEN");
 		Category TXT = store.category("TXT");
 
-		this.addRule(at(SPC), delete);
+		this.addRule(at(SPC), drop);
 		this.addPriorityLevel();
 		this.addRule(after(START), nop);
 		this.addRule(after(NL), nop);
