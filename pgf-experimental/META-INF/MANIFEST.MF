@@ -20,4 +20,5 @@ Export-Package: org.nuthatchery.pgf.examples,
  org.nuthatchery.pgf.rules,
  org.nuthatchery.pgf.rules.actions,
  org.nuthatchery.pgf.rules.pattern,
- org.nuthatchery.pgf.tokens
+ org.nuthatchery.pgf.tokens,
+ org.nuthatchery.pgf.examples
