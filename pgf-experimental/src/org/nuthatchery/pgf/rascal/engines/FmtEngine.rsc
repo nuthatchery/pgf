@@ -54,7 +54,10 @@ str subMargin(int k, str s, LvRel(n)) {
 // lv:: level specification (Lv)
 // Returns:: new indentation state and string
 tuple[LvStack, str] margin(LvStack st, int k, str s, LvPop()) {
-  return spop(st);
+  if(st != [])
+  	return spop(st);
+  else
+  	return <st, s>;
 }
 
 tuple[LvStack, str] margin(LvStack st, int k, str s, Lv lv) {

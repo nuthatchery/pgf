@@ -242,30 +242,6 @@ Tseq pp(ConceptDef(arg0, arg1, arg2, arg3), Tseq stream) {
   return ast2stream(stream, pp, arg0, Begin("DEF"), Keyword("concept"), arg1, arg2, BinOp("="), arg3, End("DEF"));
 }
 
-Tseq pp(Congruence(), Tseq stream) {
-  return ast2stream(stream, pp, Text("\\EQ"));
-}
-
-Tseq pp(Congruence(arg0), Tseq stream) {
-  return ast2stream(stream, pp, Keyword("congruence"), arg0, SemiColon);
-}
-
-Tseq pp(CongruenceClause(arg0, arg1), Tseq stream) {
-  return ast2stream(stream, pp, Keyword("congruence"), arg0, arg1);
-}
-
-Tseq pp(CongruenceOn(arg0, arg1), Tseq stream) {
-  return ast2stream(stream, pp, Keyword("congruence"), arg0, Keyword("on"), arg1, SemiColon);
-}
-
-Tseq pp(DataInvariant(), Tseq stream) {
-  return ast2stream(stream, pp, Text("\\DI"));
-}
-
-Tseq pp(DataInvariantClause(arg0, arg1), Tseq stream) {
-  return ast2stream(stream, pp, Keyword("datainvariant"), arg0, arg1);
-}
-
 Tseq pp(DecimalIntegerLiteral(decimal), Tseq stream) {
   return ast2stream(stream, pp, arg0);
 }
@@ -302,10 +278,6 @@ Tseq ppDefClause(list[AST] attrs, AST arg1, Tseq stream) {
 				kind = "predicate";
 			else if(Axiom() in attrs)
 				kind = "axiom";
-			else if(DataInvariant() in attrs)
-				kind = "datainvariant";
-			else if(Congruence() in attrs)
-				kind = "congruence";
 			stream = put(Keyword(kind), stream);
 			stream = pp(unqualify(basename(n)), stream);
 			stream = ppFunParams(ps, stream);
