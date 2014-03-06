@@ -180,7 +180,7 @@ public class AsFix2Tokenizer {
 
 	public static STermCursor getProdType(STermCursor tree) {
 		if(tree.hasName("prod")) {
-			return tree.getBranch(2);
+			return tree.getBranchCursor(2);
 		}
 		else {
 			throw new IllegalArgumentException("Not a production");
@@ -190,7 +190,7 @@ public class AsFix2Tokenizer {
 
 	public static STermCursor getProdDefined(STermCursor tree) {
 		if(tree.hasName("prod")) {
-			return tree.getBranch(1);
+			return tree.getBranchCursor(1);
 		}
 		else {
 			throw new IllegalArgumentException("Not a production");
