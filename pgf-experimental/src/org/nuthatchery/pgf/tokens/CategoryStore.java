@@ -8,6 +8,7 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.nuthatchery.pgf.tokens.errors.StoreNotCompiled;
@@ -15,12 +16,12 @@ import org.nuthatchery.pgf.tokens.errors.StoreNotEditable;
 import org.nuthatchery.pgf.tokens.errors.UnknownCategory;
 
 public class CategoryStore {
-	private Map<String, Category> cats = new HashMap<String, Category>();
-	private Map<Category, Set<Category>> superMap = new IdentityHashMap<Category, Set<Category>>();
-	private int[] infoTable;
-	private Category[] catsByInt;
-	private int numCats;
-	private boolean editable = true;
+	protected final Map<String, Category> cats = new HashMap<String, Category>();
+	protected final Map<Category, Set<Category>> superMap = new IdentityHashMap<Category, Set<Category>>();
+	protected int[] infoTable;
+	protected Category[] catsByInt;
+	protected int numCats;
+	protected boolean editable = true;
 
 
 	/**
@@ -44,7 +45,7 @@ public class CategoryStore {
 
 	public boolean checkInvariant() {
 		if(!editable) {
-			if(catsByInt == null | infoTable == null) {
+			if(catsByInt == null || infoTable == null) {
 				return false;
 			}
 
@@ -196,6 +197,12 @@ public class CategoryStore {
 
 					@Override
 					public Category next() {
+						while(c2 < numCats && get(c1, c2) <= 0) {
+							c2++;
+						}
+						if(c2 >= numCats) {
+							throw new NoSuchElementException();
+						}
 						return catsByInt[c2++];
 					}
 
