@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.ui,
  nuthatch
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.nuthatchery.pgf.examples,
+Export-Package: org.nuthatchery.pgf.config,
+ org.nuthatchery.pgf.examples,
  org.nuthatchery.pgf.experimental,
  org.nuthatchery.pgf.plumbing,
  org.nuthatchery.pgf.plumbing.impl,

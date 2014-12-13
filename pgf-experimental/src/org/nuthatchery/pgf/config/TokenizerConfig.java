@@ -1,4 +1,4 @@
-package org.nuthatchery.pgf.rascal.uptr;
+package org.nuthatchery.pgf.config;
 
 import java.util.Set;
 

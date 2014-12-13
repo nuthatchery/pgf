@@ -29,8 +29,8 @@ import nuthatch.pattern.Pattern;
 import nuthatch.stratego.adapter.STermCursor;
 import nuthatch.stratego.adapter.SWalker;
 
+import org.nuthatchery.pgf.config.TokenizerConfig;
 import org.nuthatchery.pgf.plumbing.ForwardStream;
-import org.nuthatchery.pgf.rascal.uptr.TokenizerConfig;
 import org.nuthatchery.pgf.tokens.CategoryStore;
 import org.nuthatchery.pgf.tokens.CtrlToken;
 import org.nuthatchery.pgf.tokens.DataToken;

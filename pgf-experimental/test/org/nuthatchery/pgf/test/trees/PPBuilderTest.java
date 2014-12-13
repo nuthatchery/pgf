@@ -21,8 +21,8 @@ import static nuthatch.examples.xmpllang.full.XmplPatterns.*;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.nuthatchery.pgf.rascal.uptr.TokenizerConfig;
-import org.nuthatchery.pgf.rascal.uptr.TokenizerConfigBase;
+import org.nuthatchery.pgf.config.TokenizerConfig;
+import org.nuthatchery.pgf.config.TokenizerConfigBase;
 import org.nuthatchery.pgf.tokens.CategoryStore;
 import org.nuthatchery.pgf.trees.PPBuilder;
 import org.nuthatchery.pgf.trees.PrettyPrinter;

@@ -13,10 +13,10 @@ import java.util.Set;
 import nuthatch.javafront.JavaParser;
 import nuthatch.stratego.adapter.STermCursor;
 
+import org.nuthatchery.pgf.config.TokenizerConfigBase;
 import org.nuthatchery.pgf.plumbing.ForwardPipe;
 import org.nuthatchery.pgf.plumbing.impl.BufferedSyncPipeComponent;
 import org.nuthatchery.pgf.processors.CopyProcessor;
-import org.nuthatchery.pgf.rascal.uptr.TokenizerConfigBase;
 import org.nuthatchery.pgf.tokens.CategoryStore;
 import org.nuthatchery.pgf.tokens.Token;
 import org.nuthatchery.pgf.tokens.TokensToString;

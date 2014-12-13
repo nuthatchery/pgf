@@ -3,8 +3,8 @@ package org.nuthatchery.pgf.tokens;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nuthatchery.pgf.config.TokenizerConfig;
 import org.nuthatchery.pgf.plumbing.ForwardStream;
-import org.nuthatchery.pgf.rascal.uptr.TokenizerConfig;
 
 public class TokenizerHelper {
 	public static final Pattern patLayout = Pattern.compile("^(\\s*)(.*\\S)(\\s*)$", Pattern.DOTALL);

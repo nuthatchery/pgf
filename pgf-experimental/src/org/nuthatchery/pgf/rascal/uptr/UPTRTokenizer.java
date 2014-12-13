@@ -7,6 +7,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.nuthatchery.pgf.config.TokenizerConfig;
 import org.nuthatchery.pgf.plumbing.ForwardStream;
 import org.nuthatchery.pgf.tokens.Category;
 import org.nuthatchery.pgf.tokens.CategoryStore;

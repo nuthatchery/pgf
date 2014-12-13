@@ -7,9 +7,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 
+import org.nuthatchery.pgf.config.TokenizerConfig;
 import org.nuthatchery.pgf.plumbing.ForwardStream;
 import org.nuthatchery.pgf.plumbing.impl.BufferedSyncPipeComponent;
-import org.nuthatchery.pgf.rascal.uptr.TokenizerConfig;
 import org.nuthatchery.pgf.tokens.Category;
 import org.nuthatchery.pgf.tokens.DataToken;
 import org.nuthatchery.pgf.tokens.Token;
