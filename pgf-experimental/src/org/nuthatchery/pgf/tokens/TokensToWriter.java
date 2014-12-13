@@ -1,5 +1,6 @@
 package org.nuthatchery.pgf.tokens;
 
+import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import org.nuthatchery.pgf.plumbing.PipeConnector;
@@ -9,7 +10,12 @@ public class TokensToWriter extends ProcessorBase<Token, Token> {
 	PrintWriter writer;
 
 
-	TokensToWriter(PrintWriter writer) {
+	public TokensToWriter(PrintStream stream) {
+		this.writer = new PrintWriter(stream);
+	}
+
+
+	public TokensToWriter(PrintWriter writer) {
 		this.writer = writer;
 	}
 
