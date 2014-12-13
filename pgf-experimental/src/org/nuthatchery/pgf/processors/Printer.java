@@ -1,6 +1,8 @@
 package org.nuthatchery.pgf.processors;
 
+import java.io.PrintStream;
 import java.io.PrintWriter;
+
 import org.nuthatchery.pgf.plumbing.PipeConnector;
 
 /**
@@ -14,6 +16,11 @@ public class Printer<T> extends ProcessorBase<T, T> {
 	private final PrintWriter pw;
 	private final String sep;
 	private boolean first = true;
+
+
+	public Printer(PrintStream out, String separator) {
+		this(new PrintWriter(out), separator);
+	}
 
 
 	public Printer(PrintWriter pw, String separator) {
