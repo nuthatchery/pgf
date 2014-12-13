@@ -40,7 +40,7 @@ import nuthatch.walker.impl.SimpleWalker;
  * @param <C>
  * @param <W>
  */
-public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends Walker<Value, Type>> {
+public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends Walker<Value, Type, W>> {
 	@SuppressWarnings("unchecked")
 	protected final ActionFactory<Value, Type, C, W> af = (ActionFactory<Value, Type, C, W>) ActionFactory.actionFactory;
 	protected final TokenizerConfig config;
@@ -553,7 +553,7 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 	 * @param <C>
 	 * @param <W>
 	 */
-	static class PP<Value, Type, C extends TreeCursor<Value, Type>, W extends Walker<Value, Type>> implements PrettyPrinter<Value, Type, C, W> {
+	static class PP<Value, Type, C extends TreeCursor<Value, Type>, W extends Walker<Value, Type, W>> implements PrettyPrinter<Value, Type, C, W> {
 		protected ForwardStream<Token> stream;
 		protected Action<W> step;
 		protected Walk<W> walk;

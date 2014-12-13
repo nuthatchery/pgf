@@ -24,7 +24,7 @@ import nuthatch.walker.Walker;
  * @param <C>
  * @param <W>
  */
-public interface PrettyPrinter<Value, Type, C extends TreeCursor<Value, Type>, W extends Walker<Value, Type>> {
+public interface PrettyPrinter<Value, Type, C extends TreeCursor<Value, Type>, W extends Walker<Value, Type, W>> {
 	/**
 	 * Connect the printer to an output.
 	 * 
