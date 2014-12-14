@@ -12,11 +12,6 @@ import nuthatch.examples.xmpllang.full.XmplCursor;
 import nuthatch.examples.xmpllang.full.XmplPatterns;
 import nuthatch.examples.xmpllang.full.XmplWalker;
 import static org.junit.Assert.*;
-import static nuthatch.examples.xmpllang.expronly.ExprPatterns.Add;
-import static nuthatch.examples.xmpllang.expronly.ExprPatterns.Int;
-import static nuthatch.examples.xmpllang.expronly.ExprPatterns.Let;
-import static nuthatch.examples.xmpllang.expronly.ExprPatterns.Mul;
-import static nuthatch.examples.xmpllang.expronly.ExprPatterns.Var;
 import static nuthatch.examples.xmpllang.full.XmplPatterns.*;
 
 import org.junit.Before;
@@ -28,9 +23,9 @@ import org.nuthatchery.pgf.trees.PPBuilder;
 import org.nuthatchery.pgf.trees.PrettyPrinter;
 
 public class PPBuilderTest {
-	PPBuilder<XmplNode, Type, XmplCursor, XmplWalker> builder1;
-	PPBuilder<XmplNode, Type, XmplCursor, XmplWalker> builder2;
-	PrettyPrinter<XmplNode, Type, XmplCursor, XmplWalker> printer;
+	PPBuilder<XmplNode, Type> builder1;
+	PPBuilder<XmplNode, Type> builder2;
+	PrettyPrinter<XmplNode, Type> printer;
 
 	static final String x = "x";
 	static final String y = "y";
@@ -40,6 +35,7 @@ public class PPBuilderTest {
 	static final Expr expr4 = Let(Var(y), Int(0), Let(Var(x), Int(3), Let(Var(y), Int(4), Add(Var(x), Var(y)))));
 	static final Expr expr5 = Let(Var(y), Int(0), Var(y));
 	static final Expr expr6 = Let(Var(x), Int(1), Let(Var(x), Var(x), Var(x)));
+	static final Expr expr7 = Sum(Int(1), Var(x), Sum(Add(Var(x), Int(5)), Var(x)));
 	static final Stat stat1 = Nop();
 	static final Stat stat2 = Seq(Assign(Var("x"), Int(0)), Nop(), Nop());
 	static final Stat stat3 = If(Int(1), Assign(Var("x"), Int(2)), Assign(Var("x"), Int(3)));
@@ -88,8 +84,8 @@ public class PPBuilderTest {
 	};
 
 
-	public PrettyPrinter<XmplNode, Type, XmplCursor, XmplWalker> exprPP() {
-		PPBuilder<XmplNode, Type, XmplCursor, XmplWalker> builder = new PPBuilder<>(config, XmplActionFactory.exprBuildContext);
+	public PrettyPrinter<XmplNode, Type> exprPP() {
+		PPBuilder<XmplNode, Type> builder = new PPBuilder<>(config, XmplActionFactory.exprBuildContext);
 		builder.addTmpl(Add(_, _), "+ ( <1> , <2> )");
 		builder.addTmpl(Assign(_, _), "<1>  =  <2>");
 		builder.addTmpl(Declare(_, _, _), "let  <1>  =  <2>  in  <3>  endlet");
@@ -99,6 +95,7 @@ public class PPBuilderTest {
 		builder.addTmpl(Mul(_, _), "* ( <1> , <2> )");
 		builder.addTmpl(tree(Nop()), ";");
 		builder.addTmpl(Seq(_, _), "<1> ; <2>");
+		builder.addTmpl(Sum(), "sum ( <sepBy(0,',')> )");
 		builder.addTmpl(While(_, _), "while  <1>  do  <2>  end");
 		builder.addTmpl(Var(_), "<str(0,TXT)>");
 		builder.compile();
@@ -110,8 +107,8 @@ public class PPBuilderTest {
 
 	@Before
 	public void setup() {
-		builder1 = new PPBuilder<>(config, XmplActionFactory.exprBuildContext);
-		builder2 = new PPBuilder<>(config, XmplActionFactory.exprBuildContext);
+		builder1 = new PPBuilder<XmplNode, Type>(config, XmplActionFactory.exprBuildContext);
+		builder2 = new PPBuilder<XmplNode, Type>(config, XmplActionFactory.exprBuildContext);
 		printer = exprPP();
 	}
 
@@ -154,7 +151,7 @@ public class PPBuilderTest {
 
 	@Test
 	public void xmplTest() {
-		PrettyPrinter<XmplNode, Type, XmplCursor, XmplWalker> exprPP = exprPP();
+		PrettyPrinter<XmplNode, Type> exprPP = exprPP();
 		exprPP.print(new XmplCursor(ExampleExpr.expr1), System.out);
 		assertTrue(true);
 
@@ -194,6 +191,12 @@ public class PPBuilderTest {
 	@Test
 	public void xmplTestExpr6() {
 		assertEquals("let x = 1 in let x = x in x endlet endlet", printer.toString(new XmplCursor(expr6)));
+	}
+
+
+	@Test
+	public void xmplTestExpr7() {
+		assertEquals("sum(1,x,sum(+(x,5),x))", printer.toString(new XmplCursor(expr7)));
 	}
 
 

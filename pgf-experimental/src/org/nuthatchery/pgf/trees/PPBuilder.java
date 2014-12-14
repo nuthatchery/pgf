@@ -26,8 +26,6 @@ import nuthatch.library.Walk;
 import nuthatch.pattern.BuildContext;
 import nuthatch.pattern.Pattern;
 import nuthatch.tree.TreeCursor;
-import nuthatch.tree.TreeHandle;
-import nuthatch.walker.Walker;
 import nuthatch.walker.impl.SimpleWalker;
 
 
@@ -37,16 +35,14 @@ import nuthatch.walker.impl.SimpleWalker;
  * 
  * @param <Value>
  * @param <Type>
- * @param <C>
- * @param <W>
  */
-public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends Walker<Value, Type, W>> {
+public class PPBuilder<Value, Type> {
 	@SuppressWarnings("unchecked")
-	protected final ActionFactory<Value, Type, C, W> af = (ActionFactory<Value, Type, C, W>) ActionFactory.actionFactory;
+	protected final ActionFactory<Value, Type, TreeCursor<Value, Type>, SimpleWalker<Value, Type>> af = (ActionFactory<Value, Type, TreeCursor<Value, Type>, SimpleWalker<Value, Type>>) ActionFactory.actionFactory;
 	protected final TokenizerConfig config;
 
 	protected final List<Rule<Value, Type>> rules = new ArrayList<>();
-	protected final BuildContext<Value, Type, C> context;
+	protected final BuildContext<Value, Type, TreeCursor<Value, Type>> context;
 
 
 	/**
@@ -63,9 +59,9 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 	 *            The build context of the tree type
 	 */
 	@SuppressWarnings("unchecked")
-	public PPBuilder(TokenizerConfig config, BuildContext<Value, Type, C> context) {
-		ActionFactory<Value, Type, C, W> af = (ActionFactory<Value, Type, C, W>) ActionFactory.actionFactory;
-		this.context = context;
+	public PPBuilder(TokenizerConfig config, BuildContext<Value, Type, ? extends TreeCursor<Value, Type>> context) {
+		ActionFactory<Value, Type, TreeCursor<Value, Type>, SimpleWalker<Value, Type>> af = (ActionFactory<Value, Type, TreeCursor<Value, Type>, SimpleWalker<Value, Type>>) ActionFactory.actionFactory;
+		this.context = (BuildContext<Value, Type, TreeCursor<Value, Type>>) context;
 		this.config = config;
 	}
 
@@ -79,7 +75,7 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 	 *            A list of tokes to be output for the pattern
 	 * @return This builder, for method chaining
 	 */
-	public PPBuilder<Value, Type, C, W> addList(Pattern<Value, Type> pat, Object... ppRules) {
+	public PPBuilder<Value, Type> addList(Pattern<Value, Type> pat, Object... ppRules) {
 		return addTypedList(pat, null, ppRules);
 	}
 
@@ -119,7 +115,7 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 	 *            A string of tokes to be output for the pattern
 	 * @return This builder, for method chaining
 	 */
-	public PPBuilder<Value, Type, C, W> addTmpl(Pattern<Value, Type> pat, String template) {
+	public PPBuilder<Value, Type> addTmpl(Pattern<Value, Type> pat, String template) {
 		return addTypedTmpl(pat, null, template);
 	}
 
@@ -133,7 +129,7 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 	 *            A list of tokes to be output for the pattern
 	 * @return This builder, for method chaining
 	 */
-	public PPBuilder<Value, Type, C, W> addTypedList(Pattern<Value, Type> pat, String sort, Object... ppRules) {
+	public PPBuilder<Value, Type> addTypedList(Pattern<Value, Type> pat, String sort, Object... ppRules) {
 		List<PPAtom> rule = new ArrayList<>();
 
 		for(Object o : ppRules) {
@@ -212,7 +208,7 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 	 *            A string of tokes to be output for the pattern
 	 * @return This builder, for method chaining
 	 */
-	public PPBuilder<Value, Type, C, W> addTypedTmpl(Pattern<Value, Type> pat, String sort, String template) {
+	public PPBuilder<Value, Type> addTypedTmpl(Pattern<Value, Type> pat, String sort, String template) {
 		List<PPAtom> decoded = decodeTemplate(template);
 
 		rules.add(new Rule<>(pat, decoded));
@@ -225,13 +221,13 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 	 * 
 	 * @return A pretty printer
 	 */
-	public PrettyPrinter<Value, Type, C, W> compile() {
-		PP<Value, Type, C, W> printer = new PP<>();
-		MatchBuilder<Value, Type, C, W> builder = af.matchBuilder(context);
+	public PrettyPrinter<Value, Type> compile() {
+		PP<Value, Type> printer = new PP<>();
+		MatchBuilder<Value, Type, ? extends TreeCursor<Value, Type>, SimpleWalker<Value, Type>> builder = af.matchBuilder(context);
 		for(Rule<Value, Type> r : rules) {
 			builder.add(r.pat, compileRule(r.pat, r.tokens, printer));
 		}
-		Action<W> action = builder.first();
+		Action<SimpleWalker<Value, Type>> action = builder.first();
 		printer.setWalk(action, af.walk(action));
 		return printer;
 	}
@@ -248,7 +244,7 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 		if(getClass() != obj.getClass()) {
 			return false;
 		}
-		PPBuilder<?, ?, ?, ?> other = (PPBuilder<?, ?, ?, ?>) obj;
+		PPBuilder<?, ?> other = (PPBuilder<?, ?>) obj;
 		if(rules == null) {
 			if(other.rules != null) {
 				return false;
@@ -278,10 +274,10 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 
 
 	@SuppressWarnings("unchecked")
-	private MatchAction<Value, Type, C, W> compileRule(Pattern<Value, Type> pat, List<PPAtom> rule, PP<Value, Type, C, W> printer) {
+	private MatchAction<Value, Type, TreeCursor<Value, Type>, SimpleWalker<Value, Type>> compileRule(Pattern<Value, Type> pat, List<PPAtom> rule, PP<Value, Type> printer) {
 		int from = 0;
 		List<PPAtom> tmp = new ArrayList<>();
-		ActionBuilder<W> cb = af.combineBuilder();
+		ActionBuilder<SimpleWalker<Value, Type>> cb = af.combineBuilder();
 		for(int i = 0; i < rule.size(); i++) {
 			PPAtom atom = rule.get(i);
 
@@ -300,7 +296,11 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 				}
 			}
 			else if(atom instanceof PPSepBy) {
-				tmp.add(atom);
+				PPSepBy sepBy = (PPSepBy) atom;
+				if(sepBy.sep == null) {
+					sepBy.sep = new DataToken(sepBy.sepString, config.getCatForLiteral(sepBy.sepString));
+				}
+				tmp.add(sepBy);
 			}
 			else if(atom instanceof PPCmdChild) {
 				tmp.add(atom);
@@ -314,7 +314,7 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 		else {
 			cb.add(af.from(from, af.go(0)));
 		}
-		Action<W> action = cb.done();
+		Action<SimpleWalker<Value, Type>> action = cb.done();
 		System.out.println("Pattern:     " + pat);
 		System.out.println("  => Rule:   " + rule);
 		System.out.println("  => Action: " + action);
@@ -351,7 +351,8 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 				pos = childMatcher.end();
 			}
 			else if(sepMatcher.region(pos, len).lookingAt()) {
-				rules.add(new PPSepBy(decodePath(sepMatcher.group(1)), sepMatcher.group(3)));
+				String sep = sepMatcher.group(3);
+				rules.add(new PPSepBy(decodePath(sepMatcher.group(1)), sep));
 				pos = sepMatcher.end();
 			}
 			else if(commaSepMatcher.region(pos, len).lookingAt()) {
@@ -553,10 +554,11 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 	 * @param <C>
 	 * @param <W>
 	 */
-	static class PP<Value, Type, C extends TreeCursor<Value, Type>, W extends Walker<Value, Type, W>> implements PrettyPrinter<Value, Type, C, W> {
+	static class PP<Value, Type> implements PrettyPrinter<Value, Type> {
 		protected ForwardStream<Token> stream;
-		protected Action<W> step;
-		protected Walk<W> walk;
+		protected Action<SimpleWalker<Value, Type>> step;
+		protected Walk<SimpleWalker<Value, Type>> walk;
+		protected final ActionFactory<Value, Type, TreeCursor<Value, Type>, SimpleWalker<Value, Type>> af = (ActionFactory<Value, Type, TreeCursor<Value, Type>, SimpleWalker<Value, Type>>) ActionFactory.actionFactory;
 
 
 		@Override
@@ -566,15 +568,15 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 
 
 		@Override
-		synchronized public void print(C tree) {
-			SimpleWalker<Value, Type> walker = new SimpleWalker<Value, Type>(tree, (Walk<SimpleWalker<Value, Type>>) walk);
+		synchronized public void print(TreeCursor<Value, Type> tree) {
+			SimpleWalker<Value, Type> walker = new SimpleWalker<Value, Type>(tree, walk);
 			walker.start();
 			stream.end();
 		}
 
 
 		@Override
-		synchronized public void print(C tree, ForwardStream<Token> output) {
+		synchronized public void print(TreeCursor<Value, Type> tree, ForwardStream<Token> output) {
 			connect(output);
 			print(tree);
 			connect(null);
@@ -582,7 +584,7 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 
 
 		@Override
-		synchronized public void print(C tree, PrintStream output) {
+		synchronized public void print(TreeCursor<Value, Type> tree, PrintStream output) {
 			connect(new BufferedSyncPipeComponent<>(new TokensToWriter(output)));
 			print(tree);
 			connect(null);
@@ -590,7 +592,7 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 
 
 		@Override
-		synchronized public String toString(C tree) {
+		synchronized public String toString(TreeCursor<Value, Type> tree) {
 			TokensToString tokensToString = new TokensToString();
 			connect(new BufferedSyncPipeComponent<>(tokensToString));
 			print(tree);
@@ -604,13 +606,13 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 		}
 
 
-		void setWalk(Action<W> s, Walk<W> w) {
+		void setWalk(Action<SimpleWalker<Value, Type>> s, Walk<SimpleWalker<Value, Type>> w) {
 			step = s;
 			walk = w;
 		}
 
 
-		class PPAction extends BaseAction<W> {
+		class PPAction extends BaseAction<SimpleWalker<Value, Type>> {
 			private List<PPAtom> toks;
 
 
@@ -619,33 +621,50 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 			}
 
 
+			@SuppressWarnings("unchecked")
 			@Override
-			public int step(W walker) {
+			public int step(SimpleWalker<Value, Type> walker) {
 				for(PPAtom atom : toks) {
 					if(atom instanceof PPBuilder.PPToken) {
 						stream.put(((PPToken) atom).token);
 					}
 					else if(atom instanceof PPCmdChild) {
 						PPCmdChild cmdChild = (PPCmdChild) atom;
-						if(cmdChild.path.length == 1 && cmdChild.path[0] == 0) {
+						if(cmdChild.path.length == 0 || (cmdChild.path.length == 1 && cmdChild.path[0] == 0)) {
 							String s = walker.treeToString();
 							stream.put(new DataToken(s, cmdChild.cat));
 
 						}
-						else if(cmdChild.path.length == 1) {
-							TreeHandle<Value, Type> handle = walker.getBranchHandle(cmdChild.path[0]);
-							String s = handle.treeToString();
-							stream.put(new DataToken(s, cmdChild.cat));
-						}
 						else {
-							throw new UnsupportedOperationException();
+							TreeCursor<Value, Type> cursor = walker.copySubtree();
+							cursor.go(cmdChild.path);
+							String s = cursor.treeToString();
+							stream.put(new DataToken(s, cmdChild.cat));
 						}
 					}
 					else if(atom instanceof PPChild) {
-						throw new UnsupportedOperationException();
+						TreeCursor<Value, Type> cursor = walker.copySubtree();
+						cursor.go(((PPChild) atom).path);
+						SimpleWalker<Value, Type> subWalker = walker.subWalker(cursor.copySubtree());
+						subWalker.start();
 					}
 					else if(atom instanceof PPSepBy) {
-						throw new UnsupportedOperationException();
+						final PPSepBy sepBy = (PPSepBy) atom;
+						TreeCursor<Value, Type> cursor = walker.copySubtree();
+						if(!(sepBy.path.length == 0 || (sepBy.path.length == 1 && sepBy.path[0] == 0))) {
+							cursor.go(sepBy.path);
+						}
+						if(cursor.getArity() > 0) {
+							Action<SimpleWalker<Value, Type>> action = af.seq(af.atRoot(af.beforeChild(new BaseAction<SimpleWalker<Value, Type>>() {
+								@Override
+								public int step(SimpleWalker<Value, Type> walker) {
+									stream.put(sepBy.sep);
+									return NEXT;
+								}
+							})), step);
+							SimpleWalker<Value, Type> subWalker = new SimpleWalker<Value, Type>(cursor.copySubtree().go(1), af.walk(action));
+							subWalker.start();
+						}
 					}
 					else {
 						throw new IllegalArgumentException();
@@ -772,12 +791,19 @@ public class PPBuilder<Value, Type, C extends TreeCursor<Value, Type>, W extends
 
 	static class PPSepBy implements PPAtom {
 		int[] path;
-		String sep;
+		DataToken sep;
+		String sepString;
 
 
-		PPSepBy(int[] path, String sep) {
+		public PPSepBy(int[] path, String sepString) {
 			this.path = path;
-			this.sep = sep;
+			this.sepString = sepString;
+		}
+
+
+		PPSepBy(int[] path, DataToken dataToken) {
+			this.path = path;
+			this.sep = dataToken;
 		}
 
 

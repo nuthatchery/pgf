@@ -24,7 +24,7 @@ import nuthatch.walker.Walker;
  * @param <C>
  * @param <W>
  */
-public interface PrettyPrinter<Value, Type, C extends TreeCursor<Value, Type>, W extends Walker<Value, Type, W>> {
+public interface PrettyPrinter<Value, Type> {
 	/**
 	 * Connect the printer to an output.
 	 * 
@@ -41,7 +41,7 @@ public interface PrettyPrinter<Value, Type, C extends TreeCursor<Value, Type>, W
 	 * @param tree
 	 *            A tree cursor
 	 */
-	void print(C tree);
+	void print(TreeCursor<Value, Type> tree);
 
 
 	/**
@@ -52,7 +52,7 @@ public interface PrettyPrinter<Value, Type, C extends TreeCursor<Value, Type>, W
 	 * @param output
 	 *            The destination stream
 	 */
-	void print(C tree, ForwardStream<Token> output);
+	void print(TreeCursor<Value, Type> tree, ForwardStream<Token> output);
 
 
 	/**
@@ -63,7 +63,7 @@ public interface PrettyPrinter<Value, Type, C extends TreeCursor<Value, Type>, W
 	 * @param output
 	 *            The destination stream
 	 */
-	void print(C tree, PrintStream output);
+	void print(TreeCursor<Value, Type> tree, PrintStream output);
 
 
 	/**
@@ -73,6 +73,6 @@ public interface PrettyPrinter<Value, Type, C extends TreeCursor<Value, Type>, W
 	 *            A tree cursor
 	 * @return The pretty-printed string
 	 */
-	String toString(C tree);
+	String toString(TreeCursor<Value, Type> tree);
 
 }
