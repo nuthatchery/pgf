@@ -281,10 +281,7 @@ public class PPBuilder<Value, Type> {
 		for(int i = 0; i < rule.size(); i++) {
 			PPAtom atom = rule.get(i);
 
-			if(atom instanceof PPToken) {
-				tmp.add(atom);
-			}
-			else if(atom instanceof PPChild) {
+			if(atom instanceof PPChild) {
 				PPChild child = (PPChild) atom;
 				if(child.path.length == 1) {
 					cb.add(af.from(from, af.seq(printer.action(tmp), af.go(child.path[0]))));
@@ -302,14 +299,13 @@ public class PPBuilder<Value, Type> {
 				}
 				tmp.add(sepBy);
 			}
-			else if(atom instanceof PPCmdChild) {
+			else {
 				tmp.add(atom);
 			}
 
 		}
 		if(!tmp.isEmpty()) {
 			cb.add(af.from(from, af.seq(printer.action(tmp), af.go(0))));
-			tmp = new ArrayList<>();
 		}
 		else {
 			cb.add(af.from(from, af.go(0)));
@@ -398,6 +394,11 @@ public class PPBuilder<Value, Type> {
 		}
 
 		return rules;
+	}
+
+
+	public static <Value> PPAtom custom(TreeToStream<Value> printer, int... child) {
+		return new PPCustom<Value>(child, printer);
 	}
 
 
@@ -666,6 +667,12 @@ public class PPBuilder<Value, Type> {
 							subWalker.start();
 						}
 					}
+					else if(atom instanceof PPCustom) {
+						final PPCustom<Value> custom = (PPCustom<Value>) atom;
+						TreeCursor<Value, Type> cursor = walker.copySubtree();
+						cursor.go(custom.path);
+						custom.printer.printTree(cursor.getData(), stream);
+					}
 					else {
 						throw new IllegalArgumentException();
 					}
@@ -785,6 +792,63 @@ public class PPBuilder<Value, Type> {
 		public String toString() {
 			return "PPCmdChild [path=" + Arrays.toString(path) + ", cat=" + cat + "]";
 		}
+
+	}
+
+
+	static class PPCustom<Value> implements PPAtom {
+		int[] path;
+		TreeToStream<Value> printer;
+
+
+		PPCustom(int[] path, TreeToStream<Value> printer) {
+			this.path = path;
+			this.printer = printer;
+		}
+
+
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj) {
+				return true;
+			}
+			if(obj == null) {
+				return false;
+			}
+			if(getClass() != obj.getClass()) {
+				return false;
+			}
+			PPCustom other = (PPCustom) obj;
+			if(!Arrays.equals(path, other.path)) {
+				return false;
+			}
+			if(printer == null) {
+				if(other.printer != null) {
+					return false;
+				}
+			}
+			else if(!printer.equals(other.printer)) {
+				return false;
+			}
+			return true;
+		}
+
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + Arrays.hashCode(path);
+			result = prime * result + ((printer == null) ? 0 : printer.hashCode());
+			return result;
+		}
+
+
+		@Override
+		public String toString() {
+			return "PPCustom [path=" + Arrays.toString(path) + ", printer=" + printer + "]";
+		}
+
 
 	}
 
