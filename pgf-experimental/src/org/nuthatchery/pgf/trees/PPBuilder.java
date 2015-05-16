@@ -32,7 +32,7 @@ import nuthatch.walker.impl.SimpleWalker;
 /**
  * Build a {@link org.nuthatchery.prg.trees.PrettyPrinter}, which traverses a
  * tree and outputs tokens to a stream.
- * 
+ *
  * @param <Value>
  * @param <Type>
  */
@@ -47,11 +47,11 @@ public class PPBuilder<Value, Type> {
 
 	/**
 	 * Construct a builder.
-	 * 
+	 *
 	 * Rules are added by one of {@link #addList(Pattern, Object...)},
 	 * {@link #addTmpl(Pattern, String)} (or the typed counterparts), and the
 	 * pretty printer can be obtained by calling {@link #compile()}.
-	 * 
+	 *
 	 * @param config
 	 *            A configuration detailing how strings are categorised as
 	 *            tokens
@@ -68,7 +68,7 @@ public class PPBuilder<Value, Type> {
 
 	/**
 	 * Add a pretty-printing rule.
-	 * 
+	 *
 	 * @param pat
 	 *            A pattern
 	 * @param ppRules
@@ -82,7 +82,7 @@ public class PPBuilder<Value, Type> {
 
 	/**
 	 * Add a pretty-printing rule.
-	 * 
+	 *
 	 * Format of the template:
 	 * <ul>
 	 * <li>Each group of non-spaces becomes a literal token</li>
@@ -108,7 +108,7 @@ public class PPBuilder<Value, Type> {
 	 * <i>N</i> as a token classified as <i>CAT</i> token</li>
 	 * </ul>
 	 * </ul>
-	 * 
+	 *
 	 * @param pat
 	 *            A pattern
 	 * @param template
@@ -122,7 +122,7 @@ public class PPBuilder<Value, Type> {
 
 	/**
 	 * Add a pretty-printing rule.
-	 * 
+	 *
 	 * @param pat
 	 *            A pattern
 	 * @param ppRules
@@ -172,7 +172,7 @@ public class PPBuilder<Value, Type> {
 
 	/**
 	 * Add a pretty-printing rule.
-	 * 
+	 *
 	 * Format of the template:
 	 * <ul>
 	 * <li>Each group of non-spaces becomes a literal token</li>
@@ -198,7 +198,7 @@ public class PPBuilder<Value, Type> {
 	 * <i>N</i> as a token classified as <i>CAT</i> token</li>
 	 * </ul>
 	 * </ul>
-	 * 
+	 *
 	 * @param pat
 	 *            A pattern
 	 * @param sort
@@ -218,7 +218,7 @@ public class PPBuilder<Value, Type> {
 
 	/**
 	 * Compiles the currently added rules into a pretty printer.
-	 * 
+	 *
 	 * @return A pretty printer
 	 */
 	public PrettyPrinter<Value, Type> compile() {
@@ -311,9 +311,9 @@ public class PPBuilder<Value, Type> {
 			cb.add(af.from(from, af.go(0)));
 		}
 		Action<SimpleWalker<Value, Type>> action = cb.done();
-		System.out.println("Pattern:     " + pat);
-		System.out.println("  => Rule:   " + rule);
-		System.out.println("  => Action: " + action);
+//		System.out.println("Pattern:     " + pat);
+//		System.out.println("  => Rule:   " + rule);
+//		System.out.println("  => Action: " + action);
 		return af.action(action);
 
 	}
@@ -549,7 +549,7 @@ public class PPBuilder<Value, Type> {
 
 	/**
 	 * Pretty printer implementation
-	 * 
+	 *
 	 * @param <Value>
 	 * @param <Type>
 	 * @param <C>
