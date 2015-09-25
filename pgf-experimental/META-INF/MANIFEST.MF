@@ -4,15 +4,15 @@ Bundle-Name: PGF/experimental
 Bundle-SymbolicName: pgf-experimental
 Bundle-Version: 0.1.1.qualifier
 Bundle-Activator: org.nuthatchery.pgf.experimental.Activator
-Require-Bundle: org.eclipse.ui,
+Require-Bundle: org.junit,
+ org.eclipse.ui,
  org.eclipse.core.runtime,
- rascal;bundle-version="0.6.0",
- org.eclipse.imp.pdb.values;bundle-version="0.4.0",
- org.junit,
- nuthatch_rascal;bundle-version="0.99.2",
- nuthatch
+ org.eclipse.imp.pdb.values;bundle-version="0.4.3",
+ rascal;bundle-version="0.7.3",
+ nuthatch_rascal;bundle-version="0.999.0",
+ nuthatch;bundle-version="0.999.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.nuthatchery.pgf.config,
  org.nuthatchery.pgf.examples,
  org.nuthatchery.pgf.experimental,

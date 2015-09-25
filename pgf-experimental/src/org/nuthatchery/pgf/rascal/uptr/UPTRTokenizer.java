@@ -15,6 +15,7 @@ import org.nuthatchery.pgf.tokens.CtrlToken;
 import org.nuthatchery.pgf.tokens.DataToken;
 import org.nuthatchery.pgf.tokens.Token;
 import org.nuthatchery.pgf.tokens.TokenizerHelper;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -22,35 +23,12 @@ import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 public class UPTRTokenizer {
 
-	protected final CategoryStore categories;
-	protected final Category HSPC;
-	protected final Category VSPC;
-	protected final Category TXT;
-	protected final TokenizerConfig config;
-
-
-	public UPTRTokenizer(TokenizerConfig config) {
-		this.config = config;
-		this.categories = config.cfgCategories();
-		this.HSPC = config.cfgCatHorizSpace();
-		this.VSPC = config.cfgCatVertSpace();
-		this.TXT = config.cfgCatText();
-	}
-
-
-	public void tokenize(IConstructor parseTree, ForwardStream<Token> output) {
-		Visitor visitor = new Visitor();
-		visitor.output = output;
-		parseTree.accept(visitor);
-	}
-
-
 	class Visitor extends TreeVisitor<RuntimeException> {
 		ForwardStream<Token> output;
 
 
 		@Override
-		public IConstructor visitTreeAmb(IConstructor arg) throws RuntimeException {
+		public ITree visitTreeAmb(ITree arg) throws RuntimeException {
 			((IConstructor) TreeAdapter.getAlternatives(arg).iterator().next()).accept(this);
 
 			return null;
@@ -58,7 +36,7 @@ public class UPTRTokenizer {
 
 
 		@Override
-		public IConstructor visitTreeAppl(IConstructor arg) throws RuntimeException {
+		public ITree visitTreeAppl(ITree arg) throws RuntimeException {
 			IConstructor prod = TreeAdapter.getProduction(arg);
 			IConstructor sym = ProductionAdapter.getType(prod);
 			String sort = ProductionAdapter.getSortName(prod);
@@ -114,16 +92,41 @@ public class UPTRTokenizer {
 
 
 		@Override
-		public IConstructor visitTreeChar(IConstructor arg) throws RuntimeException {
+		public ITree visitTreeChar(ITree arg) throws RuntimeException {
 			output.put(new DataToken(TreeAdapter.yield(arg), null));
 			return null;
 		}
 
 
 		@Override
-		public IConstructor visitTreeCycle(IConstructor arg) throws RuntimeException {
+		public ITree visitTreeCycle(ITree arg) throws RuntimeException {
 			return null;
 		}
 
+
+	}
+
+	protected final CategoryStore categories;
+	protected final Category HSPC;
+	protected final Category VSPC;
+	protected final Category TXT;
+
+
+	protected final TokenizerConfig config;
+
+
+	public UPTRTokenizer(TokenizerConfig config) {
+		this.config = config;
+		this.categories = config.cfgCategories();
+		this.HSPC = config.cfgCatHorizSpace();
+		this.VSPC = config.cfgCatVertSpace();
+		this.TXT = config.cfgCatText();
+	}
+
+
+	public void tokenize(IConstructor parseTree, ForwardStream<Token> output) {
+		Visitor visitor = new Visitor();
+		visitor.output = output;
+		parseTree.accept(visitor);
 	}
 }
