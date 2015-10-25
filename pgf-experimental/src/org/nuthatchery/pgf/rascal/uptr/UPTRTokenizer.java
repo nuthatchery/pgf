@@ -3,10 +3,10 @@ package org.nuthatchery.pgf.rascal.uptr;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
 import org.nuthatchery.pgf.config.TokenizerConfig;
 import org.nuthatchery.pgf.plumbing.ForwardStream;
 import org.nuthatchery.pgf.tokens.Category;

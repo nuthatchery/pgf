@@ -7,7 +7,6 @@ Bundle-Activator: org.nuthatchery.pgf.experimental.Activator
 Require-Bundle: org.junit,
  org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.imp.pdb.values;bundle-version="0.4.3",
  rascal;bundle-version="0.7.3",
  nuthatch_rascal;bundle-version="0.999.0",
  nuthatch;bundle-version="0.999.0"
