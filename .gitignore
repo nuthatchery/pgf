@@ -4,3 +4,4 @@
 *.jar
 *.war
 *.ear
+pgf-java-formatter/src/org/nuthatchery/pgf/javaformatter/RascalParser.java.ex
